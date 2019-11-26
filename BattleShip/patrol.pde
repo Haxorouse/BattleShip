@@ -45,7 +45,7 @@ class Patrol extends Ship{
   void turn(int to){
     fuel--;
     if(enemy){
-      
+      dir=to;
     }else{
       invis=false;
       dir=to;
@@ -56,7 +56,13 @@ class Patrol extends Ship{
   
   void move(Boolean vertical, int coord){
     if(enemy){
-      
+      if(vertical){
+        fuel-=abs(y-coord);
+        y=coord;
+      }else{
+        fuel-=abs(x-coord);
+        x=coord;
+      }
     }else{
       invis=false;
       if(vertical){
@@ -111,12 +117,18 @@ class Patrol extends Ship{
   }
   
   void dropDecoy(int dropX, int dropY){
-    playerShips.add(new Decoy(false, dropX, dropY));
-    decoys--;
-    patrolAction=false;
-    dropping=false;
-    selecting=false;
-    playerTurn=enemy;
+    if(enemy){
+      enemyShips.add(new Decoy(true, dropX, dropY));
+      decoys--;
+      playerTurn=enemy;
+    }else{
+      playerShips.add(new Decoy(false, dropX, dropY));
+      decoys--;
+      patrolAction=false;
+      dropping=false;
+      selecting=false;
+      playerTurn=enemy;
+    }
   }
   
   void refuel(){

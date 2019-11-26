@@ -8,6 +8,7 @@ class Sub extends Ship{
   Boolean damaged = false;
   Boolean sonarDestroyed = false;
   Boolean animate = false;
+  Boolean previouslyFound = false;
   int animationCounter = 0;
   
   Button submerge;
@@ -26,6 +27,7 @@ class Sub extends Ship{
     playerTurn=enemy;
     invulnerable=true;
     if(damaged)sink();
+    playerFound=false;
   }
   
   void surface(){
@@ -33,6 +35,7 @@ class Sub extends Ship{
     submerged=false;
     playerTurn=enemy;
     invulnerable=false;
+    if(previouslyFound)playerFound=true;
   }
   
   void scan(){
@@ -41,7 +44,33 @@ class Sub extends Ship{
       power-=1;
     }else power-=3;
     if(enemy){
-      
+      int decoyCount = 0;
+      for(int x=0; x<10; x++){
+        for(int y=0; y<10; y++){
+          if(submerged){
+            int rand = (int)random(10);
+            if(rand==1)theEnemy.scans.add(gameBoard.enemyLogic[x][y]);
+            if(player.sub.submerged){
+              if(gameBoard.playerLogic[x][y]==player.sub.myTiles[0])theEnemy.scans.add(player.sub.myTiles[0]);
+              if(gameBoard.playerLogic[x][y]==player.sub.myTiles[1])theEnemy.scans.add(player.sub.myTiles[1]);
+              if(gameBoard.playerLogic[x][y]==player.sub.myTiles[2])theEnemy.scans.add(player.sub.myTiles[2]);
+            }
+          }else{
+            int rand = (int)random(30);
+            if(rand==1)theEnemy.scans.add(gameBoard.playerLogic[x][y]);
+          }
+           if(gameBoard.playerLogic[x][y].hasShip && gameBoard.playerLogic[x][y].shipName=="Decoy"){
+              theEnemy.scans.add(gameBoard.playerLogic[x][y]);
+              decoyCount++;
+            }
+        }
+      }
+      if(decoyCount>=3){
+        for(int t=0; t<myTiles.length; t++){
+          player.scans.add(myTiles[t]);
+        }
+      }
+      playerTurn=true;
     }else{
       int decoyCount = 0;
       for(int x=0; x<10; x++){
@@ -53,15 +82,19 @@ class Sub extends Ship{
               if(gameBoard.enemyLogic[x][y]==theEnemy.sub.myTiles[0])player.scans.add(theEnemy.sub.myTiles[0]);
               if(gameBoard.enemyLogic[x][y]==theEnemy.sub.myTiles[1])player.scans.add(theEnemy.sub.myTiles[1]);
               if(gameBoard.enemyLogic[x][y]==theEnemy.sub.myTiles[2])player.scans.add(theEnemy.sub.myTiles[2]);
+              theEnemy.sub.playerFound=true;
             }
           }else{
             int rand = (int)random(30);
             if(rand==1)player.scans.add(gameBoard.enemyLogic[x][y]);
           }
-           if(gameBoard.enemyLogic[x][y].hasShip && gameBoard.enemyLogic[x][y].shipName=="Decoy"){
-              player.scans.add(gameBoard.enemyLogic[x][y]);
-              decoyCount++;
-            }
+          if(gameBoard.enemyLogic[x][y].hasShip && gameBoard.enemyLogic[x][y].shipName=="Decoy"){
+            player.scans.add(gameBoard.enemyLogic[x][y]);
+            decoyCount++;
+          }
+          if(gameBoard.enemyLogic[x][y].hasShip && gameBoard.enemyLogic[x][y].shipName!="Decoy"){
+            gameBoard.enemyLogic[x][y].shipAt.playerFound=true;
+          }
         }
       }
       if(decoyCount>=3){
@@ -93,7 +126,7 @@ class Sub extends Ship{
       ellipseMode(CENTER);
       strokeWeight(10);
       stroke(0,255,0,50);
-      ellipse(getTileCenterRelX(1), getTileCenterRelY(1), 3600-(30*animationCounter), 3600-(30*animationCounter));
+      if(!invis)ellipse(getTileCenterRelX(1), getTileCenterRelY(1), 3600-(30*animationCounter), 3600-(30*animationCounter));
       if(animationCounter<=0){
         scan();
         animate=false;
@@ -101,7 +134,6 @@ class Sub extends Ship{
       }
     }
     animationCounter--;
-    println(animationCounter);
   }
   
   void shipDraw(){
@@ -125,6 +157,7 @@ class Sub extends Ship{
       }
       damaged=false;
     }
+    if(playerFound)previouslyFound=true;
   }
   
   void openDropDown(int part){

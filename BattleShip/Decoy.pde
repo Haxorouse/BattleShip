@@ -4,6 +4,4 @@ class Decoy extends Ship{
     super(1, 0, "Decoy", enemy, x, y);
   }
   
-  
-  
 }

@@ -2,7 +2,7 @@ class Carrier extends Ship{
   
   int planes = 3;
   int distToDamage=5;
-  int fuel = 50;
+  int fuel = 1;
   int deg=0;
   int launchTime = 0;
   int launchTargetX = 0;
@@ -51,20 +51,58 @@ class Carrier extends Ship{
         }
       }
     }
+    for(int a=0; a<3;a++){
+      squad.add(new LogicPlane(4,enemy));
+    }
   }
   
   void launchPlane(Boolean kamakazy){
     if(kamakazy){
       if(planes>0){
-        planes--;
-        player.squadron.add(new Plane(getTileCenterAbsX(4), getTileCenterAbsY(4), deg, 2, false, launchTargetX, launchTargetY));
+        //planes--;
+        player.squadron.add(new Plane(getTileCenterAbsX(4), getTileCenterAbsY(4), deg, 2, false, launchTargetX, launchTargetY, squad.get(choosePlane(true))));
       }
     }else{
       if(planes>0){
-        planes--;
-        player.squadron.add(new Plane(getTileCenterAbsX(4), getTileCenterAbsY(4), deg, 1, gameBoard.playerTiles[5][5].x, gameBoard.playerTiles[5][5].y, false));
+        //planes--;
+        player.squadron.add(new Plane(getTileCenterAbsX(4), getTileCenterAbsY(4), deg, 1, gameBoard.playerTiles[5][5].x, gameBoard.playerTiles[5][5].y, false, squad.get(choosePlane(false))));
       }
     }
+  }
+  
+  void checkPlanes(){
+    planes=0;
+    for(int p=0; p<squad.size(); p++){
+      LogicPlane check = squad.get(p);
+      if(!check.launched){
+        while(check.fuel<4 && fuel>0){
+          check.fuel++;
+          fuel--;
+        }
+      }
+      if(check.fuel>0 && !check.launched)planes++;
+    }
+  }
+  
+  int choosePlane(Boolean attack){
+    if(attack){
+      int lookingFor=1;
+      while(lookingFor<5){
+        for(int s=0; s<squad.size(); s++){
+          if(squad.get(s).fuel==lookingFor && !squad.get(s).launched)return s;
+        }
+        lookingFor++;
+      }
+    }else{
+      int lookingFor=4;
+      while(lookingFor>0){
+        for(int s=0; s<squad.size(); s++){
+          if(squad.get(s).fuel==lookingFor && !squad.get(s).launched)return s;
+        }
+        lookingFor--;
+      }
+    }
+    return -1;
   }
   
   void planeAnimation(){
@@ -83,7 +121,7 @@ class Carrier extends Ship{
   }
   
   void shipDraw(){
-    if(!invis){
+   // if(!invis){
       fill(150);
       noStroke();
       ellipseMode(CORNER);
@@ -95,13 +133,14 @@ class Carrier extends Ship{
         }
       }
       ellipseMode(CENTER);
-    }
+   // }
     if(animate){
       planeAnimation();
     }
     if(choosingPlace){
       chooseTile(squadronSend);
     }
+    checkPlanes();
   }
   
   void chooseTile(int member){

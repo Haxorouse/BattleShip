@@ -173,7 +173,7 @@ void mousePressed(){
     }
     if(btnBuyPlane.mouseIsHovering() && playerCredits>=20){
       playerCredits-=20;
-      player.carrier.planes++;
+      player.carrier.squad.add(new LogicPlane(4, false));
       shopOpen=false;
       playerTurn=false;
     }

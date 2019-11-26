@@ -243,6 +243,8 @@ class Board{
           }
           enemyShips.get(lastHit).hit(shot);
           playerHits.add(shot);
+          thePlayer.thinkHit.add(shot);
+          enemyShips.get(lastHit).playerFound=true;
           shot.miss=false;
           shot.hit=true;
           return;
@@ -260,6 +262,9 @@ class Board{
           for(int t=0; t<enemyMisses.size();t++){
             if(enemyMisses.get(t)==shot)enemyMisses.remove(shot);
           }
+          for(int s=0; s<enemy.seenStatus.size(); s++){
+            if(enemy.seenStatus.get(s)!=shot)enemy.seenStatus.add(shot);
+          }
           playerShips.get(lastHit).hit(shot);
           enemyHits.add(shot);
           println("hit");
@@ -267,6 +272,9 @@ class Board{
           shot.hit=true;
           return;
         }else{
+          for(int s=0; s<enemy.seenStatus.size(); s++){
+            if(enemy.seenStatus.get(s)!=shot)enemy.seenStatus.add(shot);
+          }
           animations.add(new Splash(shot));
           println("miss");
           enemyMisses.add(shot);

@@ -16,6 +16,7 @@ class Ship{
   Boolean invis = false;
   Boolean dropDownOpen=false;
   Boolean invulnerable = false;
+  Boolean playerFound = false;
   LogicTile[] myTiles;//array copying logic tiles from the main board array to manipulaate the from ship class
   
   Ship(int size,int dir,String name, Boolean enemy, int x, int y){

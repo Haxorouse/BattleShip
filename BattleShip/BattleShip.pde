@@ -25,6 +25,7 @@ GhostShip placeHold;
 Enemy enemy = new Enemy();
 Enemy theEnemy = enemy;
 Player player = new Player();
+Player thePlayer = player;
 
 ArrayList<Ship> playerShips = new ArrayList<Ship>();
 ArrayList<Ship> enemyShips = new ArrayList<Ship>();
@@ -81,7 +82,11 @@ void setup(){
   destroy = new ShipButton(tileSize*6, 12*tileSize, "Destroyer");
   sub = new ShipButton(tileSize*5, 13*tileSize, "Submarine");
   patrol = new ShipButton(tileSize*8, 13*tileSize, "Patrol Boat");
-  enemy.setupenemy();
+  try{
+    enemy.setupenemy();
+  }catch(NoSuchMethodException e){
+    
+  }
   btnExitShop = new Button(1430,750,50,30,"Exit");
   btnBuyGeneral = new Button(300,200,200,50,"Buy Spare Parts");
   btnBuyRunway =new Button(300,260,200,50,"Buy Runway Segment");
@@ -97,5 +102,11 @@ void setup(){
 
 void draw(){
   gameBoard.drawBoard();
+  try{
   if(gameOn)enemy.runenemy();
+  }catch(IllegalAccessException e){
+    
+  }catch(InvocationTargetException e){
+    
+  }
 }

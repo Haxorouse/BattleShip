@@ -4,6 +4,8 @@ class Player{
   int[] inv = {0, 0, 0, 0, 0, 0, 0};
   
   ArrayList<LogicTile> scans = new ArrayList<LogicTile>();
+  ArrayList<LogicTile> thinkHit = new ArrayList<LogicTile>();
+  ArrayList<LogicTile> thinkMiss = new ArrayList<LogicTile>();
   
   Battle battle;
   Destroyer destroyer;

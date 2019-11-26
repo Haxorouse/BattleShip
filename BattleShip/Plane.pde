@@ -23,13 +23,16 @@ class Plane{
   Button returnHome;
   Button goKamakazy;
   
-  Plane(int x, int y, int deg, int mission, int goalX, int goalY, Boolean isEnemy){
+  Plane(int x, int y, int deg, int mission, int goalX, int goalY, Boolean isEnemy, LogicPlane me){
     this.x=x;
     this.y=y;
     this.deg=deg;
     this.isEnemy=isEnemy;
     this.goalX=goalX;
     this.goalY=goalY;
+    this.me=me;
+    me.launched=true;
+    fuel=me.fuel;
     if(mission==1){
       defend = true;
     }else if(mission==2){
@@ -38,11 +41,14 @@ class Plane{
     turnAngle=angleToGoalFixed()/90;
   }
   
-   Plane(int x, int y, int deg, int mission, Boolean isEnemy, int Tx, int Ty){
+   Plane(int x, int y, int deg, int mission, Boolean isEnemy, int Tx, int Ty, LogicPlane me){
     this.x=x;
     this.y=y;
     this.deg=deg;
     this.isEnemy=isEnemy;
+    this.me=me;
+    me.launched=true;
+    fuel=me.fuel;
     if(isEnemy){
       goalX=gameBoard.playerTiles[Tx][0].x+tileSize/2;
       goalY=gameBoard.playerTiles[0][Ty].y+tileSize/2;
@@ -66,6 +72,7 @@ class Plane{
     rotate(radians(deg));
     planeSprite();
     popMatrix();
+    me.fuel=fuel;
   }
   
   void update(){
@@ -85,7 +92,7 @@ class Plane{
       if(attack){
         kamakazy();
       }else if(defend){
-        if(fuel==0){
+        if(fuel<0){
           animations.add(new Splash(x,y));
           if(!isEnemy)player.squadron.remove(this);
           if(isEnemy)enemy.squadron.remove(this);
@@ -93,14 +100,16 @@ class Plane{
         defend();
       }else if(returning){
         if(!isEnemy){
-          player.carrier.planes++;
-          player.carrier.fuel-=(4-fuel);
+          //player.carrier.planes++;
+          //player.carrier.fuel-=(4-fuel);
+          me.launched=false;
           playerTurn=false;
           player.squadron.remove(this);
         }
         if(isEnemy){
-          enemy.carrier.planes++;
-          enemy.carrier.fuel-=(4-fuel);
+          //enemy.carrier.planes++;
+          //enemy.carrier.fuel-=(4-fuel);
+          me.launched=false;
           playerTurn=true;
           enemy.squadron.remove(this);
         }
@@ -215,9 +224,11 @@ class Plane{
       }
       if(isEnemy){
         playerTurn=true;
+        theEnemy.carrier.squad.remove(me);
         enemy.squadron.remove(this);
       }else{
         playerTurn=false;
+        player.carrier.squad.remove(me);
         player.squadron.remove(this);
       }
     }
