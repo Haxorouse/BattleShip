@@ -17,7 +17,8 @@ class Ship{
   Boolean dropDownOpen=false;
   Boolean invulnerable = false;
   Boolean playerFound = false;
-  LogicTile[] myTiles;//array copying logic tiles from the main board array to manipulaate the from ship class
+  Boolean enemyFound = false;
+  LogicTile[] myTiles;//array copying logic tiles from the main board array to manipulaate them from ship class
   
   Ship(int size,int dir,String name, Boolean enemy, int x, int y){
     this.size=size;
@@ -26,7 +27,7 @@ class Ship{
     this.enemy=enemy;
     this.x=x;
     this.y=y;
-    if(enemy) invis = true;
+    //if(enemy) invis = true;
     hit = new Boolean[size];//creating hit array as the tile length of the ship
     for(int s=0;s<size;s++){
       hit[s]=false;
@@ -144,6 +145,7 @@ class Ship{
     if(mouseOnPlayerBoard){
       for(int t=0; t<size; t++){
         if(myTiles[t].x==mouseBoardX && myTiles[t].y==mouseBoardY){
+          //println(myTiles[t].x + " " + myTiles[t].y + " " + t + " " + name);
           if(!dropDownOpen)hoverPart=t;
           return true;
         }
@@ -159,21 +161,32 @@ class Ship{
     println(name+" Clicked");
   }
   
-  void repair(int part){ //needs to be reworked to allow enemy use and so the point still "looks" like a kit
+  void repair(int part){ //needs to be reworked to allow enemy use and so the point still "looks" like a hit
     hit[part]=false;
     LogicTile spot = myTiles[part];
-    for(int h=0; h<gameBoard.enemyHits.size(); h++){
-      if(gameBoard.enemyHits.get(h)==spot){
-        gameBoard.enemyHits.remove(spot);
-        break;
+    if(!enemy){
+      for(int h=0; h<gameBoard.enemyHits.size(); h++){
+        if(gameBoard.enemyHits.get(h)==spot){
+          gameBoard.enemyHits.remove(spot);
+          break;
+        }
       }
-    }
-    gameBoard.enemyMisses.add(spot);
-    spot.hit=false;
-    spot.miss=true;
-    if(enemy){
+      gameBoard.enemyMisses.add(spot);
+      spot.hit=false;
+      spot.miss=true;
+      playerTurn=false;
+    }else{
+      for(int h=0; h<gameBoard.playerHits.size(); h++){
+        if(gameBoard.playerHits.get(h)==spot){
+          gameBoard.playerHits.remove(spot);
+          break;
+        }
+      }
+      gameBoard.playerMisses.add(spot);
+      spot.hit=false;
+      spot.miss=true;
       playerTurn=true;
-    }else playerTurn=false;
+    }
   }
   
   Boolean isSunk(){

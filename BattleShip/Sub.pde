@@ -28,6 +28,7 @@ class Sub extends Ship{
     invulnerable=true;
     if(damaged)sink();
     playerFound=false;
+    enemyFound=false;
   }
   
   void surface(){
@@ -36,6 +37,7 @@ class Sub extends Ship{
     playerTurn=enemy;
     invulnerable=false;
     if(previouslyFound)playerFound=true;
+    if(previouslyFound)enemyFound=true;
   }
   
   void scan(){
@@ -49,11 +51,12 @@ class Sub extends Ship{
         for(int y=0; y<10; y++){
           if(submerged){
             int rand = (int)random(10);
-            if(rand==1)theEnemy.scans.add(gameBoard.enemyLogic[x][y]);
+            if(rand==1)theEnemy.scans.add(gameBoard.playerLogic[x][y]);
             if(player.sub.submerged){
               if(gameBoard.playerLogic[x][y]==player.sub.myTiles[0])theEnemy.scans.add(player.sub.myTiles[0]);
               if(gameBoard.playerLogic[x][y]==player.sub.myTiles[1])theEnemy.scans.add(player.sub.myTiles[1]);
               if(gameBoard.playerLogic[x][y]==player.sub.myTiles[2])theEnemy.scans.add(player.sub.myTiles[2]);
+              player.sub.enemyFound=true;
             }
           }else{
             int rand = (int)random(30);
@@ -63,6 +66,9 @@ class Sub extends Ship{
               theEnemy.scans.add(gameBoard.playerLogic[x][y]);
               decoyCount++;
             }
+            if(gameBoard.playerLogic[x][y].hasShip && gameBoard.playerLogic[x][y].shipName!="Decoy"){
+            gameBoard.playerLogic[x][y].shipAt.enemyFound=true;
+          }
         }
       }
       if(decoyCount>=3){
@@ -157,7 +163,7 @@ class Sub extends Ship{
       }
       damaged=false;
     }
-    if(playerFound)previouslyFound=true;
+    if(playerFound || enemyFound)previouslyFound=true;
   }
   
   void openDropDown(int part){

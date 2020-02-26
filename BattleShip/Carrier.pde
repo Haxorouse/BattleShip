@@ -2,7 +2,7 @@ class Carrier extends Ship{
   
   int planes = 3;
   int distToDamage=5;
-  int fuel = 1;
+  int fuel = 50;
   int deg=0;
   int launchTime = 0;
   int launchTargetX = 0;
@@ -121,7 +121,7 @@ class Carrier extends Ship{
   }
   
   void shipDraw(){
-   // if(!invis){
+    if(!invis){
       fill(150);
       noStroke();
       ellipseMode(CORNER);
@@ -133,7 +133,7 @@ class Carrier extends Ship{
         }
       }
       ellipseMode(CENTER);
-   // }
+    }
     if(animate){
       planeAnimation();
     }
@@ -266,6 +266,12 @@ class Carrier extends Ship{
         dropDownOpen=false;
         if(managing)managing=false;
       }
+    }else if(playerTurn && carrierAttack){
+      choosingPlace=false;
+      carrierAttack=false;
+      selectingTile=false;
+      playerStall=false;
+      currentLaunchAttack=false;
     }
   }
 

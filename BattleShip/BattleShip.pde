@@ -7,6 +7,7 @@ ShipButton destroy;
 ShipButton sub;
 ShipButton patrol;
 
+
 //shop buttons
 Button btnExitShop;
 Button btnBuyGeneral;

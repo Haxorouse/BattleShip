@@ -86,6 +86,7 @@ class Destroyer extends Ship{
         text(playerCredits, X+50, Y+200);
         textSize(12);
         if(fireRailGun.press&& dir%2==0 && cooldown<=0){
+          playerStall=true;
           choosingLine=true;
           dropDownOpen=false;
         }else if(fireRailGun.press){
@@ -137,6 +138,10 @@ class Destroyer extends Ship{
         }
       }
       if(!mouseOnMe())dropDownOpen=false;
+    }else if(playerTurn && destroyerAttack){
+      choosingLine=false;
+      destroyerAttack=false;
+      playerStall=false;
     }
   }
   

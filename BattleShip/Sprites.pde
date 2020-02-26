@@ -29,6 +29,13 @@ void subSprite(){
   ellipse(0,0,tileSize*3,tileSize);
 }
 
+void subSprite(int alpha){
+  fill(150,alpha);
+  noStroke();
+  ellipseMode(CORNER);
+  ellipse(0,0,tileSize*3,tileSize);
+}
+
 void subUnderSprite(){
   fill(150,150,150,50);
   noStroke();
@@ -45,6 +52,8 @@ void patrolSprite(){
   noStroke();
   ellipseMode(CORNER);
   ellipse(0,0,tileSize*2,tileSize);
+  fill(0);
+  //rect(0,0,tileSize,tileSize);
 }
 
 void patrolSprite(int xTile, int yTile, int dir){
@@ -89,6 +98,14 @@ void planeSprite(){
   fill(80);
   ellipse(0, 0, 20, 50);
   fill(71, 134, 27);
+  ellipse(0, -10, 50, 10);
+}
+
+void planeSprite(int alpha){
+  noStroke();
+  fill(80, alpha);
+  ellipse(0, 0, 20, 50);
+  fill(164, 45, 27, alpha);
   ellipse(0, -10, 50, 10);
 }
 

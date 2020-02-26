@@ -17,6 +17,7 @@ class Plane{
   Boolean madeItToGoal = false;
   Boolean signaled = false;
   int fuel=4;
+  int invisTime=-100;
   
   LogicPlane me;
   
@@ -39,6 +40,7 @@ class Plane{
       attack = true;
     }
     turnAngle=angleToGoalFixed()/90;
+    me.I=this;
   }
   
    Plane(int x, int y, int deg, int mission, Boolean isEnemy, int Tx, int Ty, LogicPlane me){
@@ -64,13 +66,23 @@ class Plane{
       attack = true;
     }
     turnAngle=angleToGoalFixed()/90;
+    me.I=this;
   }
   
   void drawPlane(){
     pushMatrix();
     translate(x, y);
     rotate(radians(deg));
-    planeSprite();
+    if(isEnemy){
+      planeSprite(invisTime);
+      if(returning){
+        invisTime-=5;
+      }else{
+        invisTime++;
+        if(attack)invisTime+=4;
+      }
+      if(invisTime>255)invisTime=255;
+    }else planeSprite();
     popMatrix();
     me.fuel=fuel;
   }
@@ -132,14 +144,14 @@ class Plane{
       move(4);
       turn(1);
     }
-    if(isEnemy){
+    if(isEnemy && enemy.squadron.get(0)==this && playerTurn){
       for(int p=0; p<player.squadron.size(); p++){
         if(player.squadron.get(p).attack){
           shoot(p);
           break;
         }else shootTime=0;
       }
-    }else{
+    }else if(player.squadron.size()>0 && !isEnemy && player.squadron.get(0)==this && !playerTurn){
       for(int e=0; e<enemy.squadron.size(); e++){
         if(enemy.squadron.get(e).attack){
           shoot(e);
@@ -157,10 +169,14 @@ class Plane{
       if(shootTime>=60){
         Plane target = player.squadron.get(plane);
         animations.add(new Boom(target.x, target.y));
+        player.carrier.squad.remove(target.me);
+        player.squadron.get(plane).me.I=null;
         player.squadron.remove(target);
         animations.add(new Boom(x, y));
-        playerTurn=false;
+        enemy.carrier.squad.remove(me);
+        me.I=null;
         enemy.squadron.remove(this);
+        playerTurn=false;
       }
     }else{
       //gun animation
@@ -168,8 +184,11 @@ class Plane{
       if(shootTime>=60){
         Plane target = enemy.squadron.get(plane);
         animations.add(new Boom(target.x, target.y));
+        enemy.carrier.squad.remove(target.me.I);
+        enemy.squadron.get(plane).me.I=null;
         enemy.squadron.remove(target);
         animations.add(new Boom(x, y));
+        player.carrier.squad.remove(me);
         playerTurn=true;
         player.squadron.remove(this);
       }
@@ -177,7 +196,7 @@ class Plane{
   }
   
   void kamakazy(){
-    move(6);
+    move(4);
     if(abs(angleToGoalFixed())>abs(turnAngle)){
         turn(turnAngle);
       }else {
@@ -187,12 +206,12 @@ class Plane{
       animations.add(new Boom(x, y));
       if(isEnemy){
         if(gameBoard.playerLogic[Tx][Ty].hasShip){
-          println("ship");
-          String ship = gameBoard.playerLogic[Tx][Ty].shipName;
+          Ship ship = gameBoard.playerLogic[Tx][Ty].shipAt;
+          println(ship.name);
           for(int s=0; s<playerShips.size(); s++){
-            if(playerShips.get(s).name==ship){
+            if(playerShips.get(s)==ship){
               for(int t=0; t<playerShips.get(s).size; t++){
-                gameBoard.tryFire(playerShips.get(s).myTiles[t].x, enemyShips.get(s).myTiles[t].y, false);
+                gameBoard.tryFire(playerShips.get(s).myTiles[t].x, playerShips.get(s).myTiles[t].y, false);
               }
               break;
             }
@@ -206,9 +225,9 @@ class Plane{
         }
       }else{
         if(gameBoard.enemyLogic[Tx][Ty].hasShip){
-          String ship = gameBoard.enemyLogic[Tx][Ty].shipName;
+          Ship ship = gameBoard.enemyLogic[Tx][Ty].shipAt;
           for(int s=0; s<enemyShips.size(); s++){
-            if(enemyShips.get(s).name==ship){
+            if(enemyShips.get(s)==ship){
               for(int t=0; t<enemyShips.get(s).size; t++){
                 gameBoard.tryFire(enemyShips.get(s).myTiles[t].x, enemyShips.get(s).myTiles[t].y, true);
               }
@@ -223,12 +242,12 @@ class Plane{
         }
       }
       if(isEnemy){
-        playerTurn=true;
         theEnemy.carrier.squad.remove(me);
+        playerTurn=true;
         enemy.squadron.remove(this);
       }else{
-        playerTurn=false;
         player.carrier.squad.remove(me);
+        playerTurn=false;
         player.squadron.remove(this);
       }
     }

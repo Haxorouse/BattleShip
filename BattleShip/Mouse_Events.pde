@@ -206,6 +206,9 @@ void mousePressed(){
       }
     }
   }
+  /*if(mouseOnPlayerBoard && mouseButton==39){
+    gameBoard.playerLogic[mouseBoardX][mouseBoardY].dumpData();
+  }*/
 }
 
 void mouseReleased(){

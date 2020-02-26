@@ -3,6 +3,8 @@ class Tile extends Button{
   String ship = "";
   Boolean damaged = false;
   Boolean pressed = false;
+  color lines = color(0);
+  int thickness = 1;
   
   Tile(int x, int y){
     super(x, y, width/25, width/25, "");
@@ -10,11 +12,12 @@ class Tile extends Button{
   
   void drawButton(){
     noFill();
-    stroke(0);
-    strokeWeight(1);
+    stroke(lines);
+    strokeWeight(thickness);
     rect(x, y, w, h);
     if(mouseIsHovering() && mousePressed && !placing &&!shopOpen){
         highlightTile(x,y,75);
+        press=true;
       }else if(mouseIsHovering() && !placing && !shopOpen){
         highlightTile(x,y,50);
       }

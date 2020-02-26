@@ -96,7 +96,7 @@ class Board{
         text("YOU WIN", width/2, height/2);
       }else text("YOU LOSE", width/2, height/2);
     }
-    onTurn();
+    if(gameOn)onTurn();
     for(int s=player.scans.size()-1; s>-1; s--){
       if(!player.scans.get(s).hasShip){
         playerMisses.add(player.scans.get(s));
@@ -111,8 +111,19 @@ class Board{
       Tile tile = enemyTiles[player.scans.get(s).x][player.scans.get(s).y];
       tile.highlightTile(50,color(0,255,0));
     }
-    for(int e=0; e<enemy.scans.size(); e++){
-      
+    for(int s=enemy.scans.size()-1; s>-1; s--){
+      if(!enemy.scans.get(s).hasShip){
+        enemyMisses.add(enemy.scans.get(s));
+        enemy.scans.get(s).miss=true;
+        enemy.scans.remove(enemy.scans.get(s));
+        break;
+      }
+      if(enemy.scans.get(s).hit){
+        enemy.scans.remove(enemy.scans.get(s));
+        break;
+      }
+      Tile tile = playerTiles[enemy.scans.get(s).x][enemy.scans.get(s).y];
+      tile.highlightTile(50,color(0,255,0));
     }
     if(shopOpen)drawShop();
   }
@@ -262,22 +273,35 @@ class Board{
           for(int t=0; t<enemyMisses.size();t++){
             if(enemyMisses.get(t)==shot)enemyMisses.remove(shot);
           }
-          for(int s=0; s<enemy.seenStatus.size(); s++){
-            if(enemy.seenStatus.get(s)!=shot)enemy.seenStatus.add(shot);
+          for(int m=0; m<enemy.thinkMiss.size(); m++){
+            if(enemy.thinkMiss.get(m)==shot)enemy.thinkMiss.remove(shot);
           }
+          Boolean found = false;
+          for(int s=0; s<enemy.seenStatus.size(); s++){
+            if(enemy.seenStatus.get(s)==shot)found=true;
+          }
+          if(!found)enemy.seenStatus.add(shot);
           playerShips.get(lastHit).hit(shot);
           enemyHits.add(shot);
-          println("hit");
+          enemy.thinkHit.add(shot);
+          playerShips.get(lastHit).enemyFound=true;
+          //println("hit");
           shot.miss=false;
           shot.hit=true;
           return;
         }else{
+          Boolean found = false;
           for(int s=0; s<enemy.seenStatus.size(); s++){
-            if(enemy.seenStatus.get(s)!=shot)enemy.seenStatus.add(shot);
+            if(enemy.seenStatus.get(s)==shot)found=true;
           }
+          for(int m=0; m<enemy.thinkHit.size(); m++){
+            if(enemy.thinkHit.get(m)==shot)enemy.thinkHit.remove(shot);
+          }
+          if(!found)enemy.seenStatus.add(shot);
           animations.add(new Splash(shot));
-          println("miss");
+          //println("miss");
           enemyMisses.add(shot);
+          enemy.thinkMiss.add(shot);
           shot.miss=true;
         }
       }
@@ -286,9 +310,11 @@ class Board{
   
   void onTurn(){
     if(playerTurn && !updatedPlayer){
+      println("----------------------");
       updatedPlayer=true;
       updatedEnemy=false;
       enemyStall=false;
+      enemy.wait=60;
       for(int p=0; p<player.squadron.size(); p++){
         player.squadron.get(p).fuel--;
       }
@@ -302,6 +328,10 @@ class Board{
         for(int c=0; c<10; c++){
           enemyLogic[r][c].checkIfHasShip();
           playerLogic[r][c].checkIfHasShip();
+          playerTiles[r][c].lines = color(0,150,0);
+          playerTiles[r][c].thickness=2;
+          enemyTiles[r][c].lines = color(0);
+          enemyTiles[r][c].thickness=1;
         }
       }
     }else if(!playerTurn && !updatedEnemy){
@@ -314,10 +344,17 @@ class Board{
       enemyCredits+=5;
       enemy.battle.cooldown--;
       enemy.destroyer.cooldown--;
+      if(!enemy.sub.submerged && enemy.sub.power<4) enemy.sub.power++;
+      if(enemy.sub.submerged) enemy.sub.power--;
+      if(enemy.sub.power<0) enemy.sub.sink();
       for(int r=0; r<10; r++){
         for(int c=0; c<10; c++){
           enemyLogic[r][c].checkIfHasShip();
           playerLogic[r][c].checkIfHasShip();
+          playerTiles[r][c].lines = color(0);
+          playerTiles[r][c].thickness=1;
+          enemyTiles[r][c].lines = color(0,150,0);
+          enemyTiles[r][c].thickness=2;
         }
       }
     }

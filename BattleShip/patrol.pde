@@ -1,6 +1,6 @@
 class Patrol extends Ship{
   
-  int fuel = 20;
+  int fuel = 30;
   int decoys = 5;
   
   Boolean moving = false;
@@ -77,6 +77,26 @@ class Patrol extends Ship{
     playerTurn=enemy;
   }
   
+  void move(int dist){
+    fuel-=abs(dist);
+    switch(dir){
+      case 0:
+        y-=dist;
+        break;
+      case 1:
+        x+=dist;
+        break;
+      case 2:
+        y+=dist;
+        break;
+      case 3:
+        x-=dist;
+        break;
+    }
+    updateTiles();
+    playerTurn=true;
+  }
+  
   void updateTiles(){
     for(int s = 0; s<2; s++){
       if(dir==0){
@@ -133,12 +153,12 @@ class Patrol extends Ship{
   
   void refuel(){
     if(enemy){
-      while(fuel<20 && theEnemy.carrier.fuel>0){
+      while(fuel<30 && theEnemy.carrier.fuel>0){
         fuel++;
         theEnemy.carrier.fuel--;
       }
     }else{
-      while(fuel<20 && player.carrier.fuel>0){
+      while(fuel<30 && player.carrier.fuel>0){
         fuel++;
         player.carrier.fuel--;
       }
