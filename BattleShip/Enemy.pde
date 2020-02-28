@@ -95,7 +95,7 @@ class Enemy{
       if(canWinRightNow()){//can win on this turn
         println("1");
         return;
-      }else if(subOutOfPower()!=0){
+      /*}else if(subOutOfPower()!=0){
         println("2");
         if(stall){
           enemyStall=true;
@@ -109,9 +109,9 @@ class Enemy{
         println("4");
         //playerTurn=true;
         return;
-      }else{ 
+      */}else{ 
         //major system down
-        majorSystemDown();
+       /* majorSystemDown();
         //sub submerged
         if(sub.submerged){
           if(sub.power>=2){
@@ -129,7 +129,7 @@ class Enemy{
         //can use broadside
         if(battle.cooldown<=0 && !battle.sunk){
           setOutput(new OutPut(3, broadside, new Object[]{}));
-        }
+        }*/
         rng();
       }
       if(nextTurns.size()>0 && (nextTurns.get(0).priority>thisTurn.priority || nextTurns.get(0).priority==-1)){
@@ -302,7 +302,7 @@ class Enemy{
   
   void placeDecoy(int X, int Y){
     patrol.dropDecoy(X,Y);
-    path.clear();
+    pathFind=new PathFind();
     path=pathFind.findPath();
   }
   
@@ -311,27 +311,28 @@ class Enemy{
   void runInstruction(){
     try{
       if(path.size()==0){
-        nextTurns.add(new OutPut(3, pFuel, new Object[] {}));
-        pathFind.goal.clear();
-        while(true){
-          if(carrier.adjacent.contains(patrol.myTiles[0])){
+        if(carrier.adjacent.contains(patrol.myTiles[0])){
+          pathFind.goal.clear();
+          while(true){
             int x=(int)random(10);
             int y=(int)random(10);
             if(pathFind.nodeMap[x][y]!=null){
               pathFind.goal.add(pathFind.nodeMap[x][y]);
+              pathFind.setInit();
               path=pathFind.findPath();
               pathFind.goal.clear();
               pathFind.defineGoal();
               break;
             }
-          }else{
-            path=pathFind.findPath();
-            break;
           }
+        }else{
+          pathFind.setInit();
+          path=pathFind.findPath();
         }
       }
       path.get(0).execute();
       path.remove(0);
+      if(path.size()==0)nextTurns.add(new OutPut(3, pFuel, new Object[] {}));
     }catch(IllegalAccessException e) {
     }catch(InvocationTargetException i){      
     }
@@ -1161,10 +1162,8 @@ class PathFind{
         }
       }
     }
-    cameFrom.put(nodeMap[patrol.x][patrol.y],null);
-    costSoFar.put(nodeMap[patrol.x][patrol.y],0);
-    movingVerticle.put(nodeMap[patrol.x][patrol.y], (patrol.dir%2==0));
-    frontier.add(nodeMap[patrol.x][patrol.y]);
+    
+    setInit();
     
     //print grid
     for(int y=0; y<10; y++){
@@ -1184,6 +1183,17 @@ class PathFind{
         println(goal.get(goal.size()-1).name);
       }
     }
+  }
+  
+  void setInit(){
+    cameFrom.clear();
+    costSoFar.clear();
+    movingVerticle.clear();
+    frontier.clear();
+    cameFrom.put(nodeMap[patrol.x][patrol.y],null);
+    costSoFar.put(nodeMap[patrol.x][patrol.y],0);
+    movingVerticle.put(nodeMap[patrol.x][patrol.y], (patrol.dir%2==0));
+    frontier.add(nodeMap[patrol.x][patrol.y]);
   }
   
   int newCost(Node next, Node from){
@@ -1234,13 +1244,13 @@ class PathFind{
   //finds path to gaol and returns it as an arraylist of encoded instructions
   ArrayList<Instruction> findPath(){
     
-    ArrayList<Instruction> pathReverse = new ArrayList<Instruction>();//temp list
+    ArrayList<Instruction> pathReverse = new ArrayList<Instruction>();//temp list //<>//
     ArrayList<Instruction> path = new ArrayList<Instruction>();//output list
     Instruction current;//instruction being made
     int adjTile = find();//runs pathfinding and returns the carrier tile we are heading to
-    if(adjTile==-1)return path;
+    Node goal=this.goal.get(adjTile);
     //LogicTile goalTile=enemy.carrier.adjacent.get(adjTile);//tile we are heading to
-    Node goal=this.goal.get(adjTile);//goal node
+    //goal node
     Node checking=goal;//node of current point in the path, statrs at goal and works backward to start
     Node previous=null;//node moved to from checking, preceding it in itteration
     Node start = nodeMap[patrol.x][patrol.y];
@@ -1249,112 +1259,138 @@ class PathFind{
     
     //iterates backwards through the path and encodes instructions
     while(checking!=null){
-      dist++;
       vert = movingVerticle.get(checking);
       println("path node" + checking.x + " " + checking.y + " verticle " + movingVerticle.get(checking));
+      
+      //first move
+      
       if(checking==start){
         if(previous==null)return path;
-        pathReverse.add(new Instruction(true, 1-dist));
-        if(checking.x==previous.x){//
-          if(checking.y>previous.y){//south, dir=2
+        
+        
+        //tile 0 of the patrol boat is checking, previous is the next tile in the direction we are moving
+        if(previous.x>checking.x){//moving east dir = 1
+          if(checking.x>0 && nodeMap[checking.x-1][checking.y]!=null){//can turn to move backward
+            pathReverse.add(new Instruction(true, -dist));
+            pathReverse.add(new Instruction(false, 3));
+          }else if(previous.x+dist<10 && nodeMap[previous.x+dist][previous.y]!=null){//cant move backward but can move forward
+            pathReverse.add(new Instruction(true, dist));
+            pathReverse.add(new Instruction(false, 1));
+          }else{//patrol boat will have to turn around in the middle
+            pathReverse.add(new Instruction(true, 1-dist));
+            pathReverse.add(new Instruction(false, 3));
+            pathReverse.add(new Instruction(true, 1));
+            pathReverse.add(new Instruction(false, 1));
+          }
+        }else if(previous.x<checking.x){//moving west dir=3
+          if(checking.x<9 && nodeMap[checking.x+1][checking.y]!=null){
+            pathReverse.add(new Instruction(true, -dist));
+            pathReverse.add(new Instruction(false, 1));
+          }else if(previous.x-dist>-1 && nodeMap[previous.x-dist][previous.y]!=null){
+            pathReverse.add(new Instruction(true, dist));
+            pathReverse.add(new Instruction(false, 3));
+          }else{
+            pathReverse.add(new Instruction(true, 1-dist));
+            pathReverse.add(new Instruction(false, 1));
+            pathReverse.add(new Instruction(true, 1));
+            pathReverse.add(new Instruction(false,3));
+          }
+        }else if(previous.y<checking.y){//moving north dir = 0
+          if(checking.y<9 && nodeMap[checking.x][checking.y+1]!=null){
+            pathReverse.add(new Instruction(true, -dist));
             pathReverse.add(new Instruction(false, 2));
-          }else{//north, dir=0
+          }else if(previous.y-dist>-1 && nodeMap[previous.x][previous.y-dist]!=null){
+            pathReverse.add(new Instruction(true, dist));
+            pathReverse.add(new Instruction(false, 0));
+          }else{
+            pathReverse.add(new Instruction(true, 1-dist));
+            pathReverse.add(new Instruction(false, 2));
+            pathReverse.add(new Instruction(true, 1));
             pathReverse.add(new Instruction(false, 0));
           }
-        }else{
-          if(checking.x>previous.x){//east, dir=1
-            pathReverse.add(new Instruction(false, 1));
-          }else{//west, dir=3
-            pathReverse.add(new Instruction(false, 3));
+        }else if(previous.y>checking.y){//moving south dir = 2
+          if(checking.y>0 && nodeMap[checking.x][checking.y-1]!=null){
+            pathReverse.add(new Instruction(true, -dist));
+            pathReverse.add(new Instruction(false, 0));
+          }else if(previous.y+dist<10 && nodeMap[previous.x][previous.y+dist]!=null){
+            pathReverse.add(new Instruction(true, dist));
+            pathReverse.add(new Instruction(false, 2));
+          }else{
+            pathReverse.add(new Instruction(true, 1-dist));
+            pathReverse.add(new Instruction(false, 0));
+            pathReverse.add(new Instruction(true,1));
+            pathReverse.add(new Instruction(false, 2));
           }
-        }
-        break;//don't break, must set first movement
+        }else exit();
+        
+        
+        break;
       }
+      
+      //subsequent moves
+      
       previous = checking;//set previous node to current before getting next current
       println(previous.x + " " + previous.y);
       checking=cameFrom.get(checking);//set current to next node
-      if(vert!=movingVerticle.get(checking)){//determine if the path turns
+      dist++;
+      if(movingVerticle.get(previous)!=movingVerticle.get(checking)){//determine if the path turns
       println("turn");
-        if(!vert){//check if the path was(will be) moving verticle
-          if(previous.x>checking.x){//moving east, dir = 1
-            if(checking.x>1 && nodeMap[checking.x-1][checking.y]!=null){//patrol can move backward, dir=3 ||||| tries to turn off of screen
-              pathReverse.add(new Instruction(true, -dist));
-              pathReverse.add(new Instruction(false, 3));
-            }else{//patrol has to move forward, dir=1
-              if(previous.x+dist<9 && nodeMap[previous.x+dist][checking.y]!=null){//patrol boat dosen't need to turn around in the middle
-                pathReverse.add(new Instruction(true, dist));
-                pathReverse.add(new Instruction(false, 1));
-              }else if(nodeMap[checking.x+dist][checking.y]==goal){//don't need to turn around, just head up to the goal
-                pathReverse.add(new Instruction(true, dist-1));
-                pathReverse.add(new Instruction(false, 1));
-              }else{//patrol has to turn around
-                pathReverse.add(new Instruction(true, 1-dist));
-                pathReverse.add(new Instruction(false, 3));
-                pathReverse.add(new Instruction(true, 1));
-                pathReverse.add(new Instruction(false, 1));
-              }
-            }
-          }else{//moving west, dir=3
-            if(checking.x<9 && nodeMap[checking.x+1][checking.y]!=null){//patrol can move backward, dir=1
-              pathReverse.add(new Instruction(true, -dist));
-              pathReverse.add(new Instruction(false, 1));
-            }else{//patrol has to move forward, dir=3
-              if(previous.x-dist>1 && nodeMap[previous.x-dist][checking.y]!=null){//patrol boat dosen't need to turn around in the middle
-                pathReverse.add(new Instruction(true, dist));
-                pathReverse.add(new Instruction(false, 3));
-              }else if(nodeMap[checking.x-dist][checking.y]==goal){//don't need to turn around, just head up to the goal
-                pathReverse.add(new Instruction(true, dist-1));
-                pathReverse.add(new Instruction(false, 3));
-              }else{//patrol has to turn around
-                pathReverse.add(new Instruction(true, 1-dist));
-                pathReverse.add(new Instruction(false, 1));
-                pathReverse.add(new Instruction(true, 1));
-                pathReverse.add(new Instruction(false,3));
-              }
-            }
+      if(previous.x>checking.x){//moving east dir = 1
+          if(checking.x>0 && nodeMap[checking.x-1][checking.y]!=null){//can turn to move backward
+            pathReverse.add(new Instruction(true, -dist));
+            pathReverse.add(new Instruction(false, 3));
+          }else if(previous.x+dist<10 && nodeMap[previous.x+dist][previous.y]!=null){//cant move backward but can move forward
+            pathReverse.add(new Instruction(true, dist));
+            pathReverse.add(new Instruction(false, 1));
+          }else{//patrol boat will have to turn around in the middle
+            pathReverse.add(new Instruction(true, 1-dist));
+            pathReverse.add(new Instruction(false, 3));
+            pathReverse.add(new Instruction(true, 1));
+            pathReverse.add(new Instruction(false, 1));
           }
-        }else{
-          if(previous.y<checking.y){//moving north, dir = 0
-            if(checking.y<9 && nodeMap[checking.x][checking.y+1]!=null){//patrol can move backward, dir=2
-              pathReverse.add(new Instruction(true, -dist));
-              pathReverse.add(new Instruction(false, 2));
-            }else{//patrol has to move forward, dir=0
-              if(previous.y-dist>1 && nodeMap[checking.x][previous.y-dist]!=null){//patrol boat dosen't need to turn around in the middle
-                pathReverse.add(new Instruction(true, dist));
-                pathReverse.add(new Instruction(false, 0));
-              }else if(nodeMap[checking.x][checking.y-dist]==goal){//don't need to turn around, just head up to the goal
-                pathReverse.add(new Instruction(true, dist-1));
-                pathReverse.add(new Instruction(false, 0));
-              }else{//patrol has to turn around
-                pathReverse.add(new Instruction(true, 1-dist));
-                pathReverse.add(new Instruction(false, 2));
-                pathReverse.add(new Instruction(true, 1));
-                pathReverse.add(new Instruction(false, 0));
-              }
-            }
-          }else{//moving south, dir=2
-            if(checking.y>1 && nodeMap[checking.x][checking.y-1]!=null){//patrol can move backward, dir=0
-              pathReverse.add(new Instruction(true, -dist));
-              pathReverse.add(new Instruction(false, 0));
-            }else{//patrol has to move forward, dir=2
-              if(previous.y+dist<9 && nodeMap[checking.x][previous.y+dist]!=null){//patrol boat dosen't need to turn around in the middle
-                pathReverse.add(new Instruction(true, dist));
-                pathReverse.add(new Instruction(false, 2));
-              }else if(nodeMap[checking.x][checking.y+dist]==goal){//don't need to turn around, just head up to the goal
-                pathReverse.add(new Instruction(true, dist-1));
-                pathReverse.add(new Instruction(false, 2));
-              }else{//patrol has to turn around
-                pathReverse.add(new Instruction(true, 1-dist));
-                pathReverse.add(new Instruction(false, 0));
-                pathReverse.add(new Instruction(true,1));
-                pathReverse.add(new Instruction(false, 2));
-              }
-            }
+        }else if(previous.x<checking.x){//moving west dir=3
+          if(checking.x<9 && nodeMap[checking.x+1][checking.y]!=null){
+            pathReverse.add(new Instruction(true, -dist));
+            pathReverse.add(new Instruction(false, 1));
+          }else if(previous.x-dist>-1 && nodeMap[previous.x-dist][previous.y]!=null){
+            pathReverse.add(new Instruction(true, dist));
+            pathReverse.add(new Instruction(false, 3));
+          }else{
+            pathReverse.add(new Instruction(true, 1-dist));
+            pathReverse.add(new Instruction(false, 1));
+            pathReverse.add(new Instruction(true, 1));
+            pathReverse.add(new Instruction(false,3));
           }
-        }
+        }else if(previous.y<checking.y){//moving north dir = 0
+          if(checking.y<9 && nodeMap[checking.x][checking.y+1]!=null){
+            pathReverse.add(new Instruction(true, -dist));
+            pathReverse.add(new Instruction(false, 2));
+          }else if(previous.y-dist>-1 && nodeMap[previous.x][previous.y-dist]!=null){
+            pathReverse.add(new Instruction(true, dist));
+            pathReverse.add(new Instruction(false, 0));
+          }else{
+            pathReverse.add(new Instruction(true, 1-dist));
+            pathReverse.add(new Instruction(false, 2));
+            pathReverse.add(new Instruction(true, 1));
+            pathReverse.add(new Instruction(false, 0));
+          }
+        }else if(previous.y>checking.y){//moving south dir = 2
+          if(checking.y>0 && nodeMap[checking.x][checking.y-1]!=null){
+            pathReverse.add(new Instruction(true, -dist));
+            pathReverse.add(new Instruction(false, 0));
+          }else if(previous.y+dist<10 && nodeMap[previous.x][previous.y+dist]!=null){
+            pathReverse.add(new Instruction(true, dist));
+            pathReverse.add(new Instruction(false, 2));
+          }else{
+            pathReverse.add(new Instruction(true, 1-dist));
+            pathReverse.add(new Instruction(false, 0));
+            pathReverse.add(new Instruction(true,1));
+            pathReverse.add(new Instruction(false, 2));
+          }
+        }else exit();
         dist=0;
       }
-    }
+    }//end of while loop
     
     println(pathReverse.size());
     
@@ -1390,6 +1426,8 @@ class PathFind{
     
     return path;  
   }
+  
+  
   
 }
 

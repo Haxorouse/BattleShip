@@ -53,7 +53,7 @@ void patrolSprite(){
   ellipseMode(CORNER);
   ellipse(0,0,tileSize*2,tileSize);
   fill(0);
-  //rect(0,0,tileSize,tileSize);
+  rect(0,0,tileSize,tileSize);
 }
 
 void patrolSprite(int xTile, int yTile, int dir){
