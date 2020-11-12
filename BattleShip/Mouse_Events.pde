@@ -83,6 +83,7 @@ void mousePressed(){
       battle.place();
       player.battle = new Battle(placeDirection, false, mouseBoardX, mouseBoardY);
       playerShips.add(player.battle);
+      batRot=player.battle.dir;
     }
     if(placerName=="Destroyer"){
       destroy.place();

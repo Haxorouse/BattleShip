@@ -45,7 +45,7 @@ class Battle extends Ship{
         fill(200);
         rect(X, Y, 150, 100);
         fireBroadside.drawButton();
-        artilery(X, Y+50, 50);
+        artilery(X+25, Y+85, 50,false);
         progressBar(X+50, Y+70, 100, 10, 6-cooldown, 6);
         if(fireBroadside.press && cooldown<=0){
           broadside();
@@ -66,7 +66,7 @@ class Battle extends Ship{
           text(player.inv[0], X+75, Y+50);
           text(player.inv[2], X+75, Y+100);
           generalSpareParts(X, Y+50, 50);
-          artilery(X, Y+100, 50);
+          artilery(X+25, Y+135, 50,false);
           if(repair.press && player.inv[0]>0 && player.inv[2]>0){
             repair(hoverPart);
             player.inv[0]--;

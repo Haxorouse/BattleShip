@@ -21,11 +21,62 @@ void generalSpareParts(int x, int y, int size){
 }
 
 void planes(int x, int y, int size){
-  noStroke();
+  pushMatrix();
+    translate(x,y);
+    scale(size/50);
+    noStroke();
+  fill(80,108,64);
+  arc(25,18,50,6,PI,2*PI);
+  arc(25,18,50,16,0,PI);
+  beginShape();
+    vertex(18,25);
+    vertex(21,27);
+    vertex(23,30);
+    vertex(27,30);
+    vertex(29,27);
+    vertex(32,25);
+    vertex(18,25);
+  endShape();
+  arc(25,46,16,8,PI,2*PI);
+  arc(25,46,16,4,0,PI*.42);
+  arc(25,46,16,4,PI*.58,PI);
+  fill(111,76,1);
+  rect(22,6,6,2);
+  rect(21.5,9,7,2);
+  rect(21,12,8,2);
+  fill(96,131,77);
+  beginShape();
+    vertex(25,50);
+    vertex(26,45);
+    vertex(27,38);
+    vertex(28,25);
+    vertex(28,16);
+    vertex(27,5);
+    vertex(23,5);
+    vertex(22,16);
+    vertex(22,25);
+    vertex(23,38);
+    vertex(24,45);
+    vertex(25,50);
+  endShape();
+  fill(40);
+  arc(27,5,8,11.5,PI,(4*PI)/3);
+  arc(23,5,8,11.5,(5*PI)/3,2*PI);
+  ellipse(25,3,12,1);
+  fill(183,206,206);
+  ellipse(25,23,4,6);
+  fill(0,0,255);
+  ellipse(8,19,5,5);
+  ellipse(42,19,5,5);
+  fill(255,0,0);
+  ellipse(8,19,2,2);
+  ellipse(42,19,2,2);
+  popMatrix();
+  /*noStroke();
   fill(80);
   ellipse(x+size/2, y+size/2, size*.4, size);
   fill(71, 134, 27);
-  ellipse(x+size/2, y+size*.3, size, size/5);
+  ellipse(x+size/2, y+size*.3, size, size/5);*/
 }
 
 void energy(int x, int y, int size){
@@ -57,21 +108,68 @@ void runway(int x, int y, int size){
   line(x+(size/2),y+(size*.2),x+(size/2),y);
 }
 
-void artilery(int x, int y, int size){
-  fill(150);
-  stroke(255,0,0);
-  strokeWeight(1);
-  rect(x+(size/4),y+(size/2),size/2,size/2);
-  noStroke();
-  rect(x+(size*.3),y,size/10,size*.6);
-  rect(x+(size*.45),y,size/10,size*.6);
-  rect(x+(size*.6),y,size/10,size*.6);
-  fill(0);
-  ellipseMode(CORNER);
-  ellipse(x+(size*.3),y-size/20,size/10,size/20);
-  ellipse(x+(size*.45),y-size/20,size/10,size/20);
-  ellipse(x+(size*.6),y-size/20,size/10,size/20);
-  ellipseMode(CENTER);
+void artilery(int x, int y, int dir){
+  pushMatrix();
+    translate(x,y);
+    rotate(((-dir)+1)*(PI/2));
+    translate(-10,-10);
+    noStroke();
+    fill(170);
+    ellipseMode(CORNER);
+    ellipse(0,0,20,20);
+    ellipseMode(CENTER);
+    fill(150);
+    beginShape();
+      vertex(6,22);
+      vertex(14,22);
+      vertex(17,15);
+      vertex(17,3);
+      vertex(3,3);
+      vertex(3,15);
+      vertex(6,22);
+    endShape();
+    fill(190);
+    beginShape();
+      vertex(6,22);
+      vertex(14,22);
+      vertex(15,15);
+      vertex(15,6);
+      vertex(5,6);
+      vertex(5,15);
+      vertex(6,22);
+    endShape();
+    fill(100);
+    beginShape();
+      vertex(5,6);
+      vertex(15,6);
+      vertex(17,3);
+      vertex(3,3);
+      vertex(5,6);
+    endShape();
+    stroke(130);
+    strokeWeight(2);
+    strokeCap(SQUARE);
+    line(6,4,6,0);
+    line(10,4,10,0);
+    line(14,4,14,0);
+    stroke(170);
+    line(6,0,6,-7);
+    line(10,0,10,-7);
+    line(14,0,14,-7);
+    strokeWeight(1);
+    line(6,-7,6,-17);
+    line(10,-7,10,-17);
+    line(14,-7,14,-17);
+    strokeCap(ROUND);
+  popMatrix();
+}
+
+void artilery(int x, int y, int size, Boolean nul){
+  pushMatrix();
+    translate(x,y);
+    scale(size/40);
+    artilery(0,0,1);
+  popMatrix();
 }
 
 void railGun(int x, int y, int size){
@@ -140,9 +238,11 @@ void motor(int x, int y, int size){
 }
 
 void decoy(int x, int y, int size){
-  noStroke();
-  fill(150);
-  ellipse(x+size/2,y+size/2,size,size);
+  pushMatrix();
+  translate(x,y);
+  scale((size/64.0));
+  decoySprite();
+  popMatrix();
 }
 
 void progressBar(int x, int y, float w, int h, float amount, float outOf){

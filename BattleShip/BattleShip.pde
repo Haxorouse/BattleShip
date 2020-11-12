@@ -64,8 +64,10 @@ int tileSize;
 int hoverPart = 0;
 int playerCredits=0;
 int enemyCredits=0;
+final int DISPLAYNUM = (int)random(10,99);
 
 int frame = 0;
+int batRot = 1;
 
 int getShipPosFromName(String name){
   for(int s=0; s<playerShips.size(); s++){

@@ -114,14 +114,14 @@ class Sub extends Ship{
   
   void animate(){
     if(submerging){
-      
+      subSprite(100+(3*animationCounter));
       if(animationCounter<=0){
         submerge();
         animate=false;
         return;
       }
     }else if(surfacing){
-      
+      subSprite(250-(3*animationCounter));
       if(animationCounter<=0){
         surface();
         animate=false;
@@ -144,13 +144,14 @@ class Sub extends Ship{
   
   void shipDraw(){
     if(!invis){
-      if(!submerged){
+      if(!submerged && !submerging){
         subSprite();
-      }else subUnderSprite();
+      }else if(!submerging && !surfacing) subUnderSprite();
       for(int h=0; h<size; h++){
-        if(hit[h]){
-          fill(100);
-          ellipse(tileSize*h,0,tileSize,tileSize); 
+        if(hit[h] && !sunk){
+          fires[h].hide=false;
+        }else{
+          fires[h].hide=true;
         }
       }
       ellipseMode(CENTER);

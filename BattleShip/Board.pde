@@ -78,6 +78,7 @@ class Board{
     for(int a=0; a<animations.size(); a++){
       animations.get(a).run();
     }
+    
     for(int p=0; p<player.squadron.size(); p++){
       player.squadron.get(p).drawPlane();
       player.squadron.get(p).update();
@@ -154,7 +155,7 @@ class Board{
     credit(150,320,50);
     fill(0);
     text(20,225,345);
-    artilery(510,320,50);
+    artilery(535,345,50,false);
     btnBuyRailgun.drawButton();
     credit(150,380,50);
     fill(0);
@@ -190,7 +191,7 @@ class Board{
     credit(150,740,50);
     fill(0);
     text(10,225,765);
-    decoy(510,740,50);
+    decoy(560,740,50);
   }
   
   void placeShip(){//displays ghost ship on selected location if location is valid and allows ship to be placed on click

@@ -75,3 +75,76 @@ class Splash extends Boom{
   }
   
 }
+
+class Hit extends Animation{
+  
+  ArrayList<Fire> flames = new ArrayList<Fire>();
+  Boolean hide = true;
+  
+  Hit(int x, int y){
+    X=x;
+    Y=y;
+  }
+  
+  void run(){
+    for(int f=flames.size()-1; f>=0; f--){
+      flames.get(f).drawFire();
+      if(flames.get(f).size<=0)flames.remove(f);
+    }
+    if(random(3)<1 && !hide){
+      flames.add(new Fire((int)(X+random(5,tileSize-5)),(int)(Y+random(5,tileSize-5)),(int)random(1,21)));
+    }
+  }
+  
+}
+
+class Fire{
+  
+  int x;
+  int y;
+  float size;
+  Smoke smoke;
+  
+  Fire(int x, int y, int size){
+    this.x=x;
+    this.y=y;
+    this.size=size;
+    smoke=new Smoke(x,y,size);
+  }
+  
+  void drawFire(){
+    fill(255,50,0);
+    strokeWeight(1);
+    stroke(255,150,50);
+    ellipse(x,y,size,size);
+    size-=.1;
+    smoke.drawSmoke();
+  }
+  
+}
+
+class Smoke{
+  
+  int x;
+  int y;
+  int size;
+  float opac;
+  
+  Smoke(int x, int y, float size){
+    this.x=x;
+    this.y=y;
+    this.size=(int)size;
+    opac=size*15;
+  }
+  
+  void drawSmoke(){
+    fill(120,opac);
+    stroke(70,opac);
+    ellipse(x,y,size,size);
+    size++;
+    opac-=2;
+    x++;
+    y-=2;
+  }
+  
+}

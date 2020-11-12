@@ -32,35 +32,30 @@ class ShipButton extends Button {
       translate(-w*.1,-h*.1);
     }
     if(name=="Aircraft Carrier"){
-      ellipseMode(CORNER);
-      fill(150);
-      noStroke();
-      ellipse(0,0,w,h);
-      ellipseMode(CENTER);
+      pushMatrix();
+        rotate(-PI/2);
+        carrierSprite();
+      popMatrix();
     }else if(name=="Battle Ship"){
-      ellipseMode(CORNER);
-      fill(150);
-      noStroke();
-      ellipse(0,0,w,h);
-      ellipseMode(CENTER);
+      pushMatrix();
+        rotate(-PI/2);
+        battleSprite();
+      popMatrix();
     }else if(name=="Destroyer"){
-      ellipseMode(CORNER);
-      fill(150);
-      noStroke();
-      ellipse(0,0,w,h);
-      ellipseMode(CENTER);
+      pushMatrix();
+        rotate(-PI/2);
+        destroySprite();
+      popMatrix();
     }else if(name=="Submarine"){
-      ellipseMode(CORNER);
-      fill(150);
-      noStroke();
-      ellipse(0,0,w,h);
-      ellipseMode(CENTER);
+      pushMatrix();
+        rotate(-PI/2);
+        subSprite();
+      popMatrix();
     }else if(name=="Patrol Boat"){
-      ellipseMode(CORNER);
-      fill(150);
-      noStroke();
-      ellipse(0,0,w,h);
-      ellipseMode(CENTER);
+      pushMatrix();
+        rotate(-PI/2);
+        patrolSprite();
+      popMatrix();
     }
     popMatrix();
   }

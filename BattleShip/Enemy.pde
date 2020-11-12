@@ -95,7 +95,7 @@ class Enemy{
       if(canWinRightNow()){//can win on this turn
         println("1");
         return;
-      /*}else if(subOutOfPower()!=0){
+      }else if(subOutOfPower()!=0){
         println("2");
         if(stall){
           enemyStall=true;
@@ -109,9 +109,9 @@ class Enemy{
         println("4");
         //playerTurn=true;
         return;
-      */}else{ 
+      }else{ 
         //major system down
-       /* majorSystemDown();
+        majorSystemDown();
         //sub submerged
         if(sub.submerged){
           if(sub.power>=2){
@@ -129,7 +129,7 @@ class Enemy{
         //can use broadside
         if(battle.cooldown<=0 && !battle.sunk){
           setOutput(new OutPut(3, broadside, new Object[]{}));
-        }*/
+        }
         rng();
       }
       if(nextTurns.size()>0 && (nextTurns.get(0).priority>thisTurn.priority || nextTurns.get(0).priority==-1)){
@@ -763,7 +763,6 @@ class Enemy{
   void rng(){
     int rand=(int)random(10);
     println("rng " + rand);
-    if(rand!=0)rand=9;
     switch(rand){
       case 0:
         movePatrol();
@@ -799,7 +798,7 @@ class Enemy{
   }
   
   void movePatrol(){
-    if(patrol.fuel==0 ||(path.size()>0 && path.get(0).moveOrTurn && patrol.fuel<path.get(0).distance)){//feedback
+    if(patrol.sunk || patrol.hit[0] || patrol.fuel==0 ||(path.size()>0 && path.get(0).moveOrTurn && patrol.fuel<path.get(0).distance)){//feedback
       rng();
       return;
     }
@@ -1244,7 +1243,7 @@ class PathFind{
   //finds path to gaol and returns it as an arraylist of encoded instructions
   ArrayList<Instruction> findPath(){
     
-    ArrayList<Instruction> pathReverse = new ArrayList<Instruction>();//temp list //<>//
+    ArrayList<Instruction> pathReverse = new ArrayList<Instruction>();//temp list
     ArrayList<Instruction> path = new ArrayList<Instruction>();//output list
     Instruction current;//instruction being made
     int adjTile = find();//runs pathfinding and returns the carrier tile we are heading to

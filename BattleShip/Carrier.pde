@@ -122,14 +122,12 @@ class Carrier extends Ship{
   
   void shipDraw(){
     if(!invis){
-      fill(150);
-      noStroke();
-      ellipseMode(CORNER);
-      ellipse(0,0,tileSize*size,tileSize);
+      carrierSprite();
       for(int h=0; h<size; h++){
-        if(hit[h]){
-          fill(100);
-          ellipse(tileSize*h,0,tileSize,tileSize); 
+        if(hit[h] && !sunk){
+          fires[h].hide=false;
+        }else{
+          fires[h].hide=true;
         }
       }
       ellipseMode(CENTER);

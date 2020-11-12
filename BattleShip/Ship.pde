@@ -19,6 +19,7 @@ class Ship{
   Boolean playerFound = false;
   Boolean enemyFound = false;
   LogicTile[] myTiles;//array copying logic tiles from the main board array to manipulaate them from ship class
+  Hit[] fires;
   
   Ship(int size,int dir,String name, Boolean enemy, int x, int y){
     this.size=size;
@@ -27,11 +28,10 @@ class Ship{
     this.enemy=enemy;
     this.x=x;
     this.y=y;
-    //if(enemy) invis = true;
+    if(enemy) invis = true;
     hit = new Boolean[size];//creating hit array as the tile length of the ship
-    for(int s=0;s<size;s++){
-      hit[s]=false;
-    }
+    fires = new Hit[size];
+    
     
     myTiles = new LogicTile[size];
     for(int s = 0; s<size; s++){
@@ -53,6 +53,12 @@ class Ship{
       myTiles[s].shipAt=this;
     }
     
+    for(int s=0;s<size;s++){
+      hit[s]=false;
+      fires[s]=new Hit(getTileCornerAbsX(s),getTileCornerAbsY(s));
+      animations.add(fires[s]);
+    }
+    
   }
   
   void drawShip(){//visual drawing of the ship
@@ -60,27 +66,29 @@ class Ship{
     translate(getTileCornerAbsX(0),getTileCornerAbsY(0));
     if(dir == 0){//north
       pushMatrix();
-      rotate(-HALF_PI);
-      translate(-tileSize,0);
+      rotate(PI);
+      translate(0,-tileSize);
       //ship drawing here
       shipDraw();
       popMatrix();
     }else if(dir == 1){//east
       pushMatrix();
+      rotate(-PI/2);
+      translate(0,0);
       //ship code here
       shipDraw();
       popMatrix();
     }else if(dir == 2){//south
       pushMatrix();
-      rotate(HALF_PI);
-      translate(0,-tileSize);
+      //rotate(PI);
+      translate(tileSize,0);
       //ship drawing here
       shipDraw();
       popMatrix();
     }else{//west
       pushMatrix();
-      rotate(PI);
-      translate(-tileSize,-tileSize);
+      rotate(HALF_PI);
+      translate(tileSize,-tileSize);
       //ship drawing here
       shipDraw();
       popMatrix();
@@ -91,14 +99,16 @@ class Ship{
   
   void shipDraw(){
     if(!invis){
-      fill(150);
-      noStroke();
-      ellipseMode(CORNER);
-      ellipse(0,0,tileSize*size,tileSize);
+      if(name=="Aircraft Carrier")carrierSprite();
+      if(name=="Battle Ship")battleSprite();
+      if(name=="Destroyer")destroySprite();
+      if(name=="Submarine")subSprite();
+      if(name=="Patrol Boat")patrolSprite();
       for(int h=0; h<size; h++){
-        if(hit[h]){
-          fill(100);
-          ellipse(tileSize*h,0,tileSize,tileSize); 
+        if(hit[h] && !sunk){
+          fires[h].hide=false;
+        }else{
+          fires[h].hide=true;
         }
       }
       ellipseMode(CENTER);
